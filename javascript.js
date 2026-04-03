@@ -76,3 +76,68 @@ form.addEventListener('submit', e => {
         submitBtn.innerHTML = "Submit";
     });
 });
+
+
+
+// gatekeepr
+function verify() {
+    const email = document.getElementById('email').value;
+    const phone = document.getElementById('phone').value;
+
+    if (email.includes('@') && phone.length > 8) {
+        // In a "no-backend" setup, we just simulate the success
+        document.getElementById('gatekeeper').style.display = 'none';
+        localStorage.setItem('verified', 'true');
+    } else {
+        alert("Please enter valid details.");
+    }
+}
+
+// On Page Load
+window.onload = function() {
+    if (localStorage.getItem('verified') === 'true') {
+        document.getElementById('gatekeeper').style.display = 'none';
+    }
+}
+
+
+// --- LEAD MAGNET POPUP FUNCTIONALITY ---
+const popup = document.getElementById('lead-popup');
+const popupForm = document.getElementById('popupForm');
+
+// Show the popup 5 seconds after the page loads
+window.addEventListener('load', function() {
+    setTimeout(function() {
+        popup.style.display = 'flex';
+    }, 5000); // 5000ms = 5 seconds
+});
+
+// Send the popup email to your Google Sheet
+popupForm.addEventListener('submit', e => {
+    e.preventDefault();
+    
+    const formData = new FormData(popupForm);
+    const requestBody = {
+        data: [{ "Email": formData.get('Email') }]
+    };
+
+    // Make sure to paste your actual SheetDB API URL here!
+    fetch('https://sheetdb.io/api/v1/c2gkynokge34t', { 
+        method: 'POST',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(requestBody)
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert("Thanks! Your download link is on the way.");
+        popup.style.display = 'none'; // Hides the popup ONLY after successful submission
+        popupForm.reset();
+    })
+    .catch(error => {
+        console.error('Error!', error.message);
+        alert("Oops! Something went wrong.");
+    });
+});
