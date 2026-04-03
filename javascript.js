@@ -24,3 +24,55 @@ function closemenu() {
     // Slides the menu back off-screen
     sidemenu.style.right = "-200px"; 
 }
+
+
+
+// --- FORM TO GOOGLE SHEETS FUNCTIONALITY ---
+
+const form = document.getElementById('contactForm');
+const submitBtn = document.getElementById('submitBtn');
+
+form.addEventListener('submit', e => {
+    // Prevent the default page reload
+    e.preventDefault();
+    
+    // Change button text to show the user it's loading
+    submitBtn.innerHTML = "Sending...";
+    
+    // Grab the data from the form
+    const formData = new FormData(form);
+    
+    // SheetDB expects data to be wrapped in a "data" array
+    const requestBody = {
+        data: [
+            {
+                "Name": formData.get('Name'),
+                "Email": formData.get('Email'),
+                "Message": formData.get('Message')
+            }
+        ]
+    };
+
+    // PASTE YOUR SHEETDB API URL BELOW
+    fetch('https://sheetdb.io/api/v1/c2gkynokge34t', {
+        method: 'POST',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(requestBody)
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Show success message and reset everything
+        alert("Success! Your message has been sent.");
+        form.reset();
+        submitBtn.innerHTML = "Submit";
+    })
+    .catch(error => {
+        // Handle any errors
+        console.error('Error!', error.message);
+        alert("Oops! Something went wrong. Please try again.");
+        submitBtn.innerHTML = "Submit";
+    });
+});
